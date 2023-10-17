@@ -1,5 +1,5 @@
 # Gensou
-Rudimentary implementation of the Touhou Gensou Mahjong 4N server.
+Rudimentary implementation of the Touhou Unreal Mahjong 4N server.
 
 ### Why?
 The game released in 2014 and it is not being sold anymore.
