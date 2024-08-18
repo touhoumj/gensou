@@ -1,3 +1,0 @@
-gunicorn
-flask==2.2.5
-pydantic==2.4.2
