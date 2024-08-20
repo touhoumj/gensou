@@ -1,4 +1,4 @@
-defmodule Gensou.Protocol.Request.JoinRoom do
+defmodule Gensou.Model.Request.JoinRoom do
   use Gensou.Schema
 
   @primary_key false

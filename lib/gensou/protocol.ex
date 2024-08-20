@@ -3,8 +3,7 @@ defmodule Gensou.Protocol do
     for: [
       Gensou.Protocol.Request,
       Gensou.Protocol.Response,
-      Gensou.Protocol.Broadcast,
-      Gensou.Model.Player.Stats
+      Gensou.Protocol.Broadcast
     ] do
     def encode_into(event, acc) do
       event
@@ -19,7 +18,10 @@ defmodule Gensou.Protocol do
       Gensou.Model.Lobby,
       Gensou.Model.Room,
       Gensou.Model.Player,
-      Gensou.Model.GameEvent
+      Gensou.Model.Player.Stats,
+      Gensou.Model.GameEvent,
+      Gensou.Model.Response.PlayerChange,
+      Gensou.Model.Response.PlayerList
     ] do
     def encode_into(%schema{} = event, acc) do
       event

@@ -1,4 +1,4 @@
-defmodule Gensou.Protocol.Request.UpdateLoadingState do
+defmodule Gensou.Model.Request.UpdateLoadingState do
   use Gensou.Schema
 
   @primary_key false

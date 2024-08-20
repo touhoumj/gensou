@@ -1,4 +1,4 @@
-defmodule Gensou.Protocol.Request.NewRoom do
+defmodule Gensou.Model.Request.NewRoom do
   use Gensou.Schema
 
   @primary_key false

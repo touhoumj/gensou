@@ -13,7 +13,7 @@ defmodule Gensou.Protocol.Response do
           error: String.t(),
           data: data() | nil
         }
-  @type data :: Model.Lobby.t() | Model.Room.t()
+  @type data :: Model.Lobby.t() | Model.Player.t() | Model.Response.PlayerList.t()
 
   def for_request(%Request{} = request, nil) do
     %Response{

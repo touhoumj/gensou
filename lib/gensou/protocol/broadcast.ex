@@ -12,17 +12,15 @@ defmodule Gensou.Protocol.Broadcast do
   @type channel ::
           :motd
           | :lobby_changed
-          | :players_changed
-          | :player_loading_state
+          | :player_changed
           | :game_event
-          | :player_disconnected
 
   @type data ::
           Model.MOTD.t()
           | Model.Lobby.t()
-          | list(Model.Player.t())
           | Model.GameEvent.t()
           | Model.Player.t()
+          | Model.Response.PlayerChange.t()
 
   def to_binary(event) do
     CBOR.encode(event)

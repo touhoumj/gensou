@@ -1,15 +1,15 @@
-defmodule Gensou.Protocol.Request.Auth do
+defmodule Gensou.Model.Request.UpdateReadiness do
   use Gensou.Schema
 
   @primary_key false
   typed_embedded_schema do
-    field :key, :string, null: false
+    field :ready, :boolean, null: false
   end
 
   @impl Gensou.Schema
   def changeset(%__MODULE__{} = data, attrs) do
     data
-    |> cast(attrs, [:key])
-    |> validate_required([:key])
+    |> cast(attrs, [:ready])
+    |> validate_required([:ready])
   end
 end

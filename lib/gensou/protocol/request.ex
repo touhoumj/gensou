@@ -1,6 +1,7 @@
 defmodule Gensou.Protocol.Request do
   import Ecto.Changeset
-  alias Gensou.Protocol.{Action, Request}
+  alias Gensou.Model
+  alias Gensou.Protocol.Action
 
   defstruct [:id, :action, :data]
 
@@ -11,13 +12,13 @@ defmodule Gensou.Protocol.Request do
         }
   @type action :: Action.t()
   @type data ::
-          Request.Auth.t()
-          | Request.NewRoom.t()
-          | Request.JoinRoom.t()
-          | Request.UpdateReadiness.t()
-          | Request.UpdateLoadingState.t()
-          | Gensou.Model.Player.t()
-          | Gensou.Model.GameEvent.t()
+          Model.Request.Auth.t()
+          | Model.Request.NewRoom.t()
+          | Model.Request.JoinRoom.t()
+          | Model.Request.UpdateReadiness.t()
+          | Model.Request.UpdateLoadingState.t()
+          | Model.Player.t()
+          | Model.GameEvent.t()
           | nil
 
   @ecto_types %{
@@ -94,16 +95,16 @@ defmodule Gensou.Protocol.Request do
 
   def schema_for_action(action) do
     case action do
-      :auth -> {:ok, Request.Auth}
+      :auth -> {:ok, Model.Request.Auth}
       :get_lobby -> {:ok, nil}
       :leave_lobby -> {:ok, nil}
-      :create_room -> {:ok, Request.NewRoom}
-      :join_room -> {:ok, Request.JoinRoom}
+      :create_room -> {:ok, Model.Request.NewRoom}
+      :join_room -> {:ok, Model.Request.JoinRoom}
       :leave_room -> {:ok, nil}
-      :update_readiness -> {:ok, Request.UpdateReadiness}
-      :update_loading_state -> {:ok, Request.UpdateLoadingState}
-      :add_cpu -> {:ok, Gensou.Model.Player}
-      :add_game_event -> {:ok, Gensou.Model.GameEvent}
+      :update_readiness -> {:ok, Model.Request.UpdateReadiness}
+      :update_loading_state -> {:ok, Model.Request.UpdateLoadingState}
+      :add_cpu -> {:ok, Model.Player}
+      :add_game_event -> {:ok, Model.GameEvent}
       :finish_game -> {:ok, nil}
       _ -> :error
     end

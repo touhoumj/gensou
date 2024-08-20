@@ -50,6 +50,7 @@ defmodule Gensou.Room do
   end
 
   def handle_call({:join, player, password}, _from, state) do
+    # TODO prevent duplicate joins
     cond do
       state.room.has_password and state.room.password != password ->
         {:reply, {:error, :invalid_password}, state}
@@ -91,7 +92,7 @@ defmodule Gensou.Room do
 
       {:waiting, player_index} ->
         {player, players} = List.pop_at(state.players, player_index)
-        broadcast(state.room.id, {:player_left, player})
+        broadcast(state.room.id, {:player_changed, :left, player.id})
         Logger.info("[#{__MODULE__}] Player left the room: #{inspect(player)}")
         room = Map.replace(state.room, :player_count, Enum.count(players))
         state = %{state | room: room, players: players}
@@ -115,7 +116,7 @@ defmodule Gensou.Room do
         player = Enum.at(players, player_index)
         Logger.warning("[#{__MODULE__}] Player disconnected: #{inspect(player)}")
         state = %{state | players: players}
-        broadcast(state.room.id, {:player_disconnected, player})
+        broadcast(state.room.id, {:player_changed, :disconnected, player.id})
 
         # When there are no more connected human players remaining, delete the room
         if has_active_human_players?(state) do
@@ -180,7 +181,8 @@ defmodule Gensou.Room do
     player = Enum.at(players, player_index)
     Logger.info("[#{__MODULE__}] Player changed their state: #{inspect(player)}")
     state = %{state | players: players}
-    broadcast(state.room.id, {:player_changed, player})
+    player_state = if ready, do: :ready, else: :not_ready
+    broadcast(state.room.id, {:player_changed, player_state, player.id})
 
     {:reply, :ok, state}
   end
@@ -211,7 +213,7 @@ defmodule Gensou.Room do
     player = Enum.at(players, player_index)
     state = %{state | room: room, players: players}
     Logger.info("[#{__MODULE__}] Player changed their loading state: #{inspect(player)}")
-    broadcast(state.room.id, {:player_loading_state, player})
+    broadcast(state.room.id, {:player_changed, loading_state, player.id})
 
     {:reply, :ok, state}
   end
@@ -269,7 +271,7 @@ defmodule Gensou.Room do
     Phoenix.PubSub.unsubscribe(Gensou.PubSub, topic(room_id))
   end
 
-  def create(%Gensou.Protocol.Request.NewRoom{} = settings) do
+  def create(%Gensou.Model.Request.NewRoom{} = settings) do
     result =
       DynamicSupervisor.start_child(
         Gensou.RoomSupervisor,

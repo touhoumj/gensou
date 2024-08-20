@@ -131,12 +131,8 @@ defmodule GensouWeb.GameSocket do
         }
 
         :ok = Gensou.Room.subscribe(request.data.id)
-
-        response = [
-          {:binary, Response.for_request(request, room)},
-          {:binary, %Broadcast{channel: :players_changed, data: players}}
-        ]
-
+        player_list = %Model.Response.PlayerList{players: players}
+        response = {:binary, Response.for_request(request, player_list)}
         {:push, response, state}
 
       {:error, :not_found} ->
@@ -244,30 +240,16 @@ defmodule GensouWeb.GameSocket do
     |> maybe_encode_result()
   end
 
-  def handle_info({:player_joined, _event}, state) do
-    # TODO replace with smaller updates
-    push_players(state)
-  end
-
-  def handle_info({:player_changed, _event}, state) do
-    # TODO replace with smaller updates
-    push_players(state)
-  end
-
-  def handle_info({:player_left, _event}, state) do
-    # TODO replace with smaller updates
-    push_players(state)
-  end
-
-  def handle_info({:player_disconnected, player}, state) do
-    # TODO replace with smaller updates
-    %Broadcast{channel: :player_disconnected, data: player}
+  def handle_info({:player_joined, player}, state) do
+    %Broadcast{channel: :player_joined, data: player}
     |> into_push(state)
     |> maybe_encode_result()
   end
 
-  def handle_info({:player_loading_state, player}, state) do
-    %Broadcast{channel: :player_loading_state, data: player}
+  def handle_info({:player_changed, kind, player_id}, state) do
+    player_change = Model.Response.PlayerChange.new!(%{id: player_id, state: kind})
+
+    %Broadcast{channel: :player_changed, data: player_change}
     |> into_push(state)
     |> maybe_encode_result()
   end
@@ -282,14 +264,6 @@ defmodule GensouWeb.GameSocket do
   def handle_info(term, state) do
     Logger.debug("[#{__MODULE__}] Unhandled event: #{inspect(term)}")
     {:ok, state}
-  end
-
-  defp push_players(state) do
-    {:ok, players} = Gensou.Room.get_players(state.room_address)
-    message = %Broadcast{channel: :players_changed, data: players}
-
-    {:push, {:binary, message}, state}
-    |> maybe_encode_result()
   end
 
   defp into_push(message, state) do
