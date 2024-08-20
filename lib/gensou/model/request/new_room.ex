@@ -1,4 +1,4 @@
-defmodule Gensou.Model.Request.NewRoom do
+defmodule Gensou.Model.Request.CreateRoom do
   use Gensou.Schema
 
   @primary_key false

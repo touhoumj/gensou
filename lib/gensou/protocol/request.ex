@@ -13,7 +13,7 @@ defmodule Gensou.Protocol.Request do
   @type action :: Action.t()
   @type data ::
           Model.Request.Auth.t()
-          | Model.Request.NewRoom.t()
+          | Model.Request.CreateRoom.t()
           | Model.Request.JoinRoom.t()
           | Model.Request.UpdateReadiness.t()
           | Model.Request.UpdateLoadingState.t()
@@ -98,7 +98,7 @@ defmodule Gensou.Protocol.Request do
       :auth -> {:ok, Model.Request.Auth}
       :get_lobby -> {:ok, nil}
       :leave_lobby -> {:ok, nil}
-      :create_room -> {:ok, Model.Request.NewRoom}
+      :create_room -> {:ok, Model.Request.CreateRoom}
       :join_room -> {:ok, Model.Request.JoinRoom}
       :leave_room -> {:ok, nil}
       :update_readiness -> {:ok, Model.Request.UpdateReadiness}

@@ -20,6 +20,7 @@ defmodule Gensou.Protocol do
       Gensou.Model.Player,
       Gensou.Model.Player.Stats,
       Gensou.Model.GameEvent,
+      Gensou.Model.Response.CreatedRoom,
       Gensou.Model.Response.PlayerChange,
       Gensou.Model.Response.PlayerList
     ] do

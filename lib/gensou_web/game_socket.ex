@@ -90,7 +90,7 @@ defmodule GensouWeb.GameSocket do
       Response.for_invalid_request(
         request,
         "Couldn't process the request.\n" <>
-          "User ID is not known for this connection."
+          "Player ID is not known for this connection."
       )
 
     {:push, {:binary, response}, state}
@@ -111,8 +111,8 @@ defmodule GensouWeb.GameSocket do
 
   def handle_request(%{action: :create_room} = request, state) do
     {:ok, {_room_pid, room}} = Gensou.Room.create(request.data)
-    # TODO send back only the room ID?
-    response = Response.for_request(request, room)
+    created_room = Gensou.Model.Response.CreatedRoom.new!(%{id: room.id})
+    response = Response.for_request(request, created_room)
     {:push, {:binary, response}, state}
   end
 
