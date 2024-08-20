@@ -7,7 +7,7 @@ defmodule Gensou.Room do
 
     room =
       Gensou.Model.Room.new!(%{
-        id: :erlang.unique_integer([:positive]),
+        id: System.os_time(:millisecond),
         name: settings.name,
         description: settings.description,
         time: settings.time,
@@ -271,7 +271,7 @@ defmodule Gensou.Room do
     Phoenix.PubSub.unsubscribe(Gensou.PubSub, topic(room_id))
   end
 
-  def create(%Gensou.Model.Request.NewRoom{} = settings) do
+  def create(%Gensou.Model.Request.CreateRoom{} = settings) do
     result =
       DynamicSupervisor.start_child(
         Gensou.RoomSupervisor,

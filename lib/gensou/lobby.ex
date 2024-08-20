@@ -29,8 +29,8 @@ defmodule Gensou.Lobby do
 
   @impl GenServer
   def handle_call(:get_info, _from, state) do
-    # TODO ensure the rooms are sorted according to their creation time
-    lobby = %Gensou.Model.Lobby{rooms: Map.values(state.rooms)}
+    rooms = state.rooms |> Map.values() |> Enum.sort_by(& &1.id)
+    lobby = %Gensou.Model.Lobby{rooms: rooms}
     {:reply, {:ok, lobby}, state}
   end
 
