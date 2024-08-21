@@ -10,7 +10,8 @@ defmodule Gensou.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
-      releases: releases()
+      releases: releases(),
+      default_release: :gensou
     ]
   end
 
@@ -57,7 +58,7 @@ defmodule Gensou.MixProject do
       {:ecto, "~> 3.10"},
       {:typed_ecto_schema, "~> 0.4.1", runtime: false},
       {:cbor, "~> 1.0"},
-      {:burrito,"~> 1.1"}
+      {:burrito, "~> 1.1"}
     ]
   end
 
@@ -82,13 +83,16 @@ defmodule Gensou.MixProject do
 
   defp releases do
     [
-      gensou: [
+      # Defaults are fine
+      gensou: [],
+      # TODO The burrito output filenames shouldn't include the suffix, if we can help it
+      gensou_wrapped: [
         steps: [:assemble, &Burrito.wrap/1],
         burrito: [
           targets: [
             linux: [os: :linux, cpu: :x86_64],
             windows: [os: :windows, cpu: :x86_64]
-            # macos users btfo
+            # itoddlers btfo
           ]
         ]
       ]

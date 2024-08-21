@@ -23,17 +23,19 @@ config :gensou, GensouWeb.Endpoint,
 
 # Configure esbuild (the version is required)
 config :esbuild,
-  version: "0.17.11",
+  version: "0.23.0",
+  path: System.get_env("ESBUILD_BIN"),
   gensou: [
     args:
       ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
     cd: Path.expand("../assets", __DIR__),
-    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+    env: %{"NODE_PATH" => System.get_env("NODE_PATH", Path.expand("../deps", __DIR__))}
   ]
 
 # Configure tailwind (the version is required)
 config :tailwind,
-  version: "3.4.3",
+  version: "3.4.4",
+  path: System.get_env("TAILWIND_BIN"),
   gensou: [
     args: ~w(
       --config=tailwind.config.js
