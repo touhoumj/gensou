@@ -19,24 +19,85 @@ With the rewrite in elixir, we've dropped the constraint of not changing the cli
 - Encoding of game events as Lua code has been replaced by CBOR, fixing the RCE (remote code execution) vulnerability from the original game.
 - The implementation is no longer bound by a single thread.
 
+### Client setup
+See the [Gensou client repository](https://github.com/touhoumj/gensou-client).
+
 ### Server setup for development
-Elixir 1.17 or higher should be the only pre-requisite. It is included in the nix flake present in this repo.
+This repository contains a Nix devshell with necessary dependencies. With [Nix installed](https://nixos.org/download/#download-nix), it can be built and entered with:
 
-Clone the repo and run
-```
-mix setup
+```sh
+nix develop
 ```
 
-And start the server with
-```
+Otherwise, you'll need [Elixir 1.17](https://elixir-lang.org/install.html) or newer.
+
+To run the development build, install the dependencies and start the program:
+
+```sh
+mix deps.get
 iex -S mix phx.server
 ```
 
-### Server setup for production
-TODO
+### Server builds for production
+This repository contains a Nix package recipe for production builds, which can be created with:
 
-### Client setup
-See the [Gensou client repository](https://github.com/touhoumj/gensou-client).
+```sh
+nix build .#
+```
+
+Another way is to use pre-built binaries from [the release page](https://github.com/touhoumj/gensou/releases).
+
+To build such binaries, these additional dependencies are required:
+- xz
+- 7z
+- zig
+
+Then it can be built like so:
+
+```sh
+MIX_ENV=prod mix release gensou_wrapped
+```
+
+Regardless of the build, it must be lauched with an environment variable `GENSOU_SECRET_KEY_BASE`.
+
+Environment variables you can configure are:
+- `GENSOU_SECRET_KEY_BASE` 64 byte or larger secret key used throughout the web server. Can be generated with `mix phx.gen.secret`
+- `GENSOU_HOST` (default: localhost) hostname which must match the publicly accessible name
+- `GENSOU_PORT` (default: 5000) port under which the server will be listening
+- `RELEASE_COOKIE` Erlang cookie used for connecting nodes in the cluster
+
+### Deployment
+This repository contains a Nixos module to ease deployment. It can be used like so:
+
+```nix
+{
+  # add Gensou flake to your inputs
+  inputs.gensou.url = "github:touhoumj/gensou";
+
+  # ensure that gensou is an allowed argument to the outputs function
+  outputs = { self, nixpkgs, gensou }: {
+    nixosConfigurations.yourHostName = let system = "x86_64-linux";
+    in nixpkgs.lib.nixosSystem {
+      modules = [
+        # load the Gensou NixOS module
+        gensou.nixosModules.${system}.default
+        ({ pkgs, ... }: {
+          # configure the gensou module
+          services.gensou = {
+            enable = true;
+            port = 5000;
+            # take extra care to not include this file in the globally readable /nix/store
+            # check the flake.nix file for expected environment variables
+            environmentFile = "/run/keys/gensou_environment";
+          };
+        })
+      ];
+    };
+  };
+}
+```
+
+If you can't or don't want to use NixOS, check out the [Elixir release guide](https://hexdocs.pm/mix/Mix.Tasks.Release.html).
 
 ### Missing features
 - Serial key reset and registration
