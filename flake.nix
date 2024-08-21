@@ -50,7 +50,7 @@
                 Environment file as defined in {manpage}`systemd.exec(5)`.
                 All of the listed variables are required:
 
-                - SECRET_KEY_BASE
+                - GENSOU_SECRET_KEY_BASE
                   The secret key base is used to sign/encrypt cookies and other secrets.
                   A default value is used in config/dev.exs and config/test.exs but you
                   want to use a different value for prod and you most likely don't want
@@ -71,8 +71,8 @@
               description = "Gensou server";
               environment = {
                 RELEASE_TMP = cfg.baseDirectory;
-                PHX_HOST = cfg.hostname;
-                PORT = toString cfg.port;
+                GENSOU_HOST = cfg.hostname;
+                GENSOU_PORT = toString cfg.port;
               };
               serviceConfig = {
                 Type = "exec";
@@ -141,7 +141,7 @@
               port = 5000;
               environmentFile = pkgs.writeText "nix-secrets" ''
                 RELEASE_COOKIE=aGkgYmluIGhpIGJpbiBoaSBiaW4gaGkgYmluIGhpIGJpbg==
-                SECRET_KEY_BASE=at_least_sixtyfour_bytes_of_pure_entropy_please_dont_use_this_in_deployments
+                GENSOU_SECRET_KEY_BASE=at_least_sixtyfour_bytes_of_pure_entropy_please_dont_use_this_in_deployments
               '';
             };
           })
