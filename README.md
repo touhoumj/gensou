@@ -1,6 +1,9 @@
 # Gensou
 Rudimentary implementation of the Touhou Unreal Mahjong 4N server.
 
+**NOTICE**: This is the old implementation that has been since rewritten.
+It's recommended to use a version from the [master branch](https://github.com/touhoumj/gensou).
+
 ### Why?
 The game released in 2014 and it is not being sold anymore.
 Even with a legitimate copy, it is not possible to play online.
