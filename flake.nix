@@ -9,7 +9,7 @@
       elixir = beam.elixir_1_17;
       elixir-ls = (beam.elixir-ls.override { inherit elixir; });
     in pkgs.mkShell {
-      buildInputs = [ elixir elixir-ls ];
+      buildInputs = [ elixir elixir-ls ] ++ (with pkgs; [ xz p7zip zig ]);
       shellHook = ''
         # this allows mix to work on the local directory
         mkdir -p .state/mix .state/hex

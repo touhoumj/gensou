@@ -9,7 +9,8 @@ defmodule Gensou.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      releases: releases()
     ]
   end
 
@@ -55,7 +56,8 @@ defmodule Gensou.MixProject do
       {:bandit, "~> 1.5"},
       {:ecto, "~> 3.10"},
       {:typed_ecto_schema, "~> 0.4.1", runtime: false},
-      {:cbor, "~> 1.0"}
+      {:cbor, "~> 1.0"},
+      {:burrito,"~> 1.1"}
     ]
   end
 
@@ -74,6 +76,21 @@ defmodule Gensou.MixProject do
         "tailwind gensou --minify",
         "esbuild gensou --minify",
         "phx.digest"
+      ]
+    ]
+  end
+
+  defp releases do
+    [
+      gensou: [
+        steps: [:assemble, &Burrito.wrap/1],
+        burrito: [
+          targets: [
+            linux: [os: :linux, cpu: :x86_64],
+            windows: [os: :windows, cpu: :x86_64]
+            # macos users btfo
+          ]
+        ]
       ]
     ]
   end
