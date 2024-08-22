@@ -17,7 +17,7 @@ defmodule GensouWeb.Router do
   scope "/", GensouWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", HomeLive
     get "/game_socket", GameController, :socket
   end
 

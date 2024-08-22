@@ -2,24 +2,22 @@
   <div class="flex items-center justify-between border-b border-zinc-100 py-3 text-sm">
     <div class="flex items-center gap-4">
       <a href="/">
-        <img src={~p"/images/logo.svg"} width="36" />
+        <img src={~p"/images/logo_64x.png"} width="36" />
       </a>
-      <p class="bg-brand/5 text-brand rounded-full px-2 font-medium leading-6">
-        v<%= Application.spec(:phoenix, :vsn) %>
-      </p>
+      <h1 class="flex items-center text-base font-semibold leading-6 text-brand">
+        Gensou
+        <small class="ml-3 rounded-full bg-brand/10 px-2 text-sm font-medium leading-6">
+          v<%= Application.spec(:gensou, :vsn) %>
+        </small>
+      </h1>
     </div>
     <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
-      <a href="https://twitter.com/elixirphoenix" class="hover:text-zinc-700">
-        @elixirphoenix
-      </a>
-      <a href="https://github.com/phoenixframework/phoenix" class="hover:text-zinc-700">
-        GitHub
-      </a>
       <a
-        href="https://hexdocs.pm/phoenix/overview.html"
+        href="https://github.com/touhoumj/gensou"
+        target="_blank"
         class="rounded-lg bg-zinc-100 px-2 py-1 hover:bg-zinc-200/80"
       >
-        Get Started <span aria-hidden="true">&rarr;</span>
+        GitHub
       </a>
     </div>
   </div>
