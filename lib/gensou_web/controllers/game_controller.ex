@@ -5,8 +5,8 @@ defmodule GensouWeb.GameController do
     conn
     |> WebSockAdapter.upgrade(
       GensouWeb.GameSocket,
-      %{remote_ip: conn.remote_ip, port: conn.port},
-      timeout: :timer.minutes(10)
+      %{remote_ip: conn.remote_ip, host: conn.host, port: conn.port},
+      timeout: :timer.minutes(1)
     )
     |> halt()
   end

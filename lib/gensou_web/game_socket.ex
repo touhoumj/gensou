@@ -19,14 +19,14 @@ defmodule GensouWeb.GameSocket do
 
     Phoenix.PubSub.subscribe(Gensou.PubSub, "debug")
     send(self(), :motd)
-    Logger.info("[#{__MODULE__}] New client #{:inet.ntoa(state.remote_ip)}:#{state.port}.")
+    Logger.info("[#{__MODULE__}] New client #{:inet.ntoa(state.remote_ip)}.")
     {:ok, state}
   end
 
   @impl WebSock
   def terminate(reason, state) do
     Logger.info(
-      "[#{__MODULE__}] Connection closed: #{:inet.ntoa(state.remote_ip)}:#{state.port}. Reason: #{inspect(reason)}"
+      "[#{__MODULE__}] Connection closed: #{:inet.ntoa(state.remote_ip)}. Reason: #{inspect(reason)}"
     )
 
     if !is_nil(state.room_address) and !is_nil(state.player_id) do
@@ -220,7 +220,7 @@ defmodule GensouWeb.GameSocket do
 
   @impl WebSock
   def handle_info(:motd, state) do
-    messages = ["Connected to websocket server"]
+    messages = ["Connected to Gensou server #{state.host}:#{state.port}"]
     data = Model.MOTD.new!(%{messages: messages})
 
     %Broadcast{channel: :motd, data: data}
