@@ -11,13 +11,9 @@ defmodule Gensou.Application do
       GensouWeb.Telemetry,
       {DNSCluster, query: Application.get_env(:gensou, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Gensou.PubSub},
-      # {Registry, keys: :duplicate, name: Gensou.PlayerRegistry},
       {Registry, keys: :unique, name: Gensou.RoomRegistry},
       {DynamicSupervisor, name: Gensou.RoomSupervisor},
       Gensou.Lobby,
-      # Start a worker by calling: Gensou.Worker.start_link(arg)
-      # {Gensou.Worker, arg},
-      # Start to serve requests, typically the last entry
       GensouWeb.Endpoint
     ]
 
