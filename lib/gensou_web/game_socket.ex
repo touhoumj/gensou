@@ -4,24 +4,22 @@ defmodule GensouWeb.GameSocket do
   alias Gensou.Model
   alias Gensou.Protocol.{Request, Response, Broadcast}
 
+  @game_version "20140830223544"
+
   @impl WebSock
   def init(state) do
     state =
-      Map.merge(
-        %{
-          player_id: nil,
-          room_id: nil,
-          room_address: nil,
-          subscribed_to_lobby: false
-        },
-        state
-      )
+      %{
+        game_version: nil,
+        player_id: nil,
+        room_id: nil,
+        room_address: nil,
+        subscribed_to_lobby: false
+      }
+      |> Map.merge(state)
 
     Phoenix.PubSub.subscribe(Gensou.PubSub, "debug")
-
-    send(self(), :motd)
     schedule_ping()
-
     Logger.info("[#{__MODULE__}] New client #{:inet.ntoa(state.remote_ip)}.")
 
     {:ok, state}
@@ -80,12 +78,13 @@ defmodule GensouWeb.GameSocket do
           WebSock.handle_result()
   def handle_request(%{action: :auth} = request, state) do
     player_id =
-      request.data.key
+      request.data.serial_key
       |> then(&:crypto.hash(:md5, &1))
       |> Base.encode16(case: :lower)
 
-    state = %{state | player_id: player_id}
+    state = %{state | game_version: request.data.game_version, player_id: player_id}
     response = Response.for_request(request, nil)
+    send(self(), :motd)
     {:push, {:binary, response}, state}
   end
 
@@ -231,7 +230,17 @@ defmodule GensouWeb.GameSocket do
   end
 
   def handle_info(:motd, state) do
-    messages = ["Connected to Gensou server #{state.host}:#{state.port}"]
+    game_outdated_message =
+      if state.game_version < @game_version do
+        ["Please update your game. Your current version may not work correctly"]
+      else
+        []
+      end
+
+    messages = [
+      "Connected to Gensou server #{state.host}:#{state.port}" | game_outdated_message
+    ]
+
     data = Model.MOTD.new!(%{messages: messages})
 
     %Broadcast{channel: :motd, data: data}

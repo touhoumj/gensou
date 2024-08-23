@@ -3,13 +3,14 @@ defmodule Gensou.Model.Request.Auth do
 
   @primary_key false
   typed_embedded_schema do
-    field :key, :string, null: false
+    field :game_version, :string, null: false
+    field :serial_key, :string, null: false
   end
 
   @impl Gensou.Schema
   def changeset(%__MODULE__{} = data, attrs) do
     data
-    |> cast(attrs, [:key])
-    |> validate_required([:key])
+    |> cast(attrs, [:game_version, :serial_key])
+    |> validate_required([:game_version, :serial_key])
   end
 end
