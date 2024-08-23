@@ -20,9 +20,7 @@ defmodule GensouWeb.GameSocket do
     Phoenix.PubSub.subscribe(Gensou.PubSub, "debug")
 
     send(self(), :motd)
-    # We are sending ping frames to the client frequently
-    # to prevent the server from timing it out
-    Process.send_after(self(), :ping, :timer.seconds(30))
+    schedule_ping()
 
     Logger.info("[#{__MODULE__}] New client #{:inet.ntoa(state.remote_ip)}.")
 
@@ -226,7 +224,9 @@ defmodule GensouWeb.GameSocket do
 
   @impl WebSock
   def handle_info(:ping, state) do
-    Process.send_after(self(), :ping, :timer.seconds(30))
+    # We are sending ping frames to the client frequently
+    # to prevent the server from timing it out
+    schedule_ping()
     {:push, {:ping, "PING"}, state}
   end
 
@@ -279,6 +279,10 @@ defmodule GensouWeb.GameSocket do
 
   defp into_push(message, state) do
     {:push, {:binary, message}, state}
+  end
+
+  defp schedule_ping() do
+    Process.send_after(self(), :ping, :timer.seconds(30))
   end
 
   defp maybe_subscribe_to_lobby(state) do

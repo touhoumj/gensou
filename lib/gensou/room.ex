@@ -29,6 +29,7 @@ defmodule Gensou.Room do
   @impl GenServer
   def init(state) do
     Logger.info("[#{__MODULE__}] Started the room: #{inspect(state.room)}")
+    schedule_room_gc()
     Gensou.Lobby.update_room(state.room)
     {:ok, state}
   end
@@ -38,6 +39,15 @@ defmodule Gensou.Room do
     Logger.info("[#{__MODULE__}] Removing the room: #{inspect(state.room)}")
     Gensou.Lobby.remove_room(state.room)
     reason
+  end
+
+  @impl GenServer
+  def handle_info(:gc, state) do
+    if has_active_human_players?(state) do
+      {:noreply, state}
+    else
+      {:stop, :normal, state}
+    end
   end
 
   @impl GenServer
@@ -240,6 +250,10 @@ defmodule Gensou.Room do
     state = %{state | events: [game_event | state.events], event_index: state.event_index + 1}
     broadcast(state.room.id, {:game_event, game_event})
     {:reply, :ok, state}
+  end
+
+  defp schedule_room_gc() do
+    Process.send_after(self(), :gc, :timer.minutes(1))
   end
 
   defp has_active_human_players?(state) do
