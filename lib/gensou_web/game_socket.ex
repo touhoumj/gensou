@@ -20,7 +20,7 @@ defmodule GensouWeb.GameSocket do
 
     Phoenix.PubSub.subscribe(Gensou.PubSub, "debug")
     schedule_ping()
-    Logger.info("[#{__MODULE__}] New client #{:inet.ntoa(state.remote_ip)}.")
+    Logger.info("[#{__MODULE__}] New client #{state.remote_ip}.")
 
     {:ok, state}
   end
@@ -28,7 +28,7 @@ defmodule GensouWeb.GameSocket do
   @impl WebSock
   def terminate(reason, state) do
     Logger.info(
-      "[#{__MODULE__}] Connection closed: #{:inet.ntoa(state.remote_ip)}. Reason: #{inspect(reason)}"
+      "[#{__MODULE__}] Connection closed: #{state.remote_ip}. Reason: #{inspect(reason)}"
     )
 
     if !is_nil(state.room_address) and !is_nil(state.player_id) do
@@ -232,14 +232,12 @@ defmodule GensouWeb.GameSocket do
   def handle_info(:motd, state) do
     game_outdated_message =
       if state.game_version < @game_version do
-        ["Please update your game. Your current version may not work correctly"]
+        ["Please update your game. Your current version may not work correctly."]
       else
         []
       end
 
-    messages = [
-      "Connected to Gensou server #{state.host}:#{state.port}" | game_outdated_message
-    ]
+    messages = ["Connected to Gensou server #{state.host}." | game_outdated_message]
 
     data = Model.MOTD.new!(%{messages: messages})
 
