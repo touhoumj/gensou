@@ -28,7 +28,7 @@ defmodule Gensou.Room do
 
   @impl GenServer
   def init(state) do
-    Logger.info("[#{__MODULE__}] Started the room: #{inspect(state.room)}")
+    Logger.info("[#{__MODULE__}] Created the room: #{inspect(state.room)}")
     schedule_room_gc()
     Gensou.Lobby.update_room(state.room)
     {:ok, state}

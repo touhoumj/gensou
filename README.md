@@ -109,7 +109,6 @@ If you can't or don't want to use NixOS, check out the [Elixir release guide](ht
   This refers to the first page of "view stats" in game. This data is only stored server-side and I did not want to add persistence for this one feature. Saving and loading has also been disabled by the client patches. Yaku and achievements still work.
 
 - Automatic updates
-- Quick play
 - Twitter integration
 
 ### Features not supported by the game to begin with

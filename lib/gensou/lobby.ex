@@ -34,6 +34,24 @@ defmodule Gensou.Lobby do
     {:reply, {:ok, lobby}, state}
   end
 
+  def handle_call(:get_open_room, _from, state) do
+    room =
+      state.rooms
+      |> Enum.filter(fn {_room_id, room} ->
+        room.allow_quick_join and room.status == :waiting and
+          room.player_count < Gensou.Model.Room.max_players(room)
+      end)
+      |> Enum.map(fn {_room_id, room} -> room end)
+      |> Enum.take_random(1)
+      |> Enum.at(0)
+
+    if room do
+      {:reply, {:ok, room}, state}
+    else
+      {:reply, {:error, :not_found}, state}
+    end
+  end
+
   def topic(), do: "lobby"
 
   def broadcast(event) do
@@ -49,6 +67,7 @@ defmodule Gensou.Lobby do
   end
 
   def get_info(), do: GenServer.call(__MODULE__, :get_info)
+  def get_open_room(), do: GenServer.call(__MODULE__, :get_open_room)
   def update_room(room), do: GenServer.cast(__MODULE__, {:update_room, room})
   def remove_room(room), do: GenServer.cast(__MODULE__, {:remove_room, room})
 end

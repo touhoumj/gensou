@@ -5,6 +5,7 @@ defmodule Gensou.Protocol.Action do
           | :leave_lobby
           | :create_room
           | :join_room
+          | :quick_join
           | :leave_room
           | :add_cpu
           | :update_readiness
@@ -21,6 +22,7 @@ defmodule Gensou.Protocol.Action do
                    :leave_lobby,
                    :create_room,
                    :join_room,
+                   :quick_join,
                    :leave_room,
                    :add_cpu,
                    :update_readiness,

@@ -4,7 +4,7 @@ defmodule GensouWeb.GameSocket do
   alias Gensou.Model
   alias Gensou.Protocol.{Request, Response, Broadcast}
 
-  @game_version "20140830223544"
+  @game_version "20240823215811"
 
   @impl WebSock
   def init(state) do
@@ -148,6 +148,19 @@ defmodule GensouWeb.GameSocket do
         |> Response.for_invalid_request("Room is full")
         |> into_push(state)
     end
+  end
+
+  def handle_request(%{action: :quick_join} = request, state) do
+    response =
+      case Gensou.Lobby.get_open_room() do
+        {:ok, room} ->
+          Response.for_request(request, room)
+
+        {:error, _} ->
+          Response.for_invalid_request(request, "Not found")
+      end
+
+    {:push, {:binary, response}, state}
   end
 
   def handle_request(%{action: :leave_room} = request, state) do

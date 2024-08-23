@@ -100,6 +100,7 @@ defmodule Gensou.Protocol.Request do
       :leave_lobby -> {:ok, nil}
       :create_room -> {:ok, Model.Request.CreateRoom}
       :join_room -> {:ok, Model.Request.JoinRoom}
+      :quick_join -> {:ok, nil}
       :leave_room -> {:ok, nil}
       :update_readiness -> {:ok, Model.Request.UpdateReadiness}
       :update_loading_state -> {:ok, Model.Request.UpdateLoadingState}
