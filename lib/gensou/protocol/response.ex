@@ -17,7 +17,8 @@ defmodule Gensou.Protocol.Response do
           Model.Lobby.t()
           | Model.Player.t()
           | Model.Response.PlayerList.t()
-          | Model.Response.CreatedRoom.t()
+          | Model.Response.NewRoom.t()
+          | Model.Response.RejoinDetails.t()
 
   def for_request(%Request{} = request, nil) do
     %Response{

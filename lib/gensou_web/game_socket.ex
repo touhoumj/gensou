@@ -82,9 +82,23 @@ defmodule GensouWeb.GameSocket do
       |> then(&:crypto.hash(:md5, &1))
       |> Base.encode16(case: :lower)
 
+    Logger.info("[#{__MODULE__}] Player authenticated: #{player_id}")
+
+    send(self(), :motd)
+
+    disconnected_from =
+      player_id
+      |> Gensou.Room.find_player_in_all_games()
+      |> Enum.filter(fn {_game_id, player} -> player.disconnected end)
+
+    case disconnected_from do
+      [{room_id, _player} | _] -> send(self(), {:reconnect_available, room_id})
+      _ -> nil
+    end
+
     state = %{state | game_version: request.data.game_version, player_id: player_id}
     response = Response.for_request(request, nil)
-    send(self(), :motd)
+
     {:push, {:binary, response}, state}
   end
 
@@ -114,7 +128,7 @@ defmodule GensouWeb.GameSocket do
 
   def handle_request(%{action: :create_room} = request, state) do
     {:ok, {_room_pid, room}} = Gensou.Room.create(request.data)
-    created_room = Gensou.Model.Response.CreatedRoom.new!(%{id: room.id})
+    created_room = Gensou.Model.Response.NewRoom.new!(%{id: room.id})
     response = Response.for_request(request, created_room)
     {:push, {:binary, response}, state}
   end
@@ -128,8 +142,7 @@ defmodule GensouWeb.GameSocket do
       {:ok, {room, players}} ->
         state = %{
           state
-          | player_id: request.data.player.id,
-            room_id: room.id,
+          | room_id: room.id,
             room_address: room_address
         }
 
@@ -146,6 +159,39 @@ defmodule GensouWeb.GameSocket do
       {:error, :room_is_full} ->
         request
         |> Response.for_invalid_request("Room is full")
+        |> into_push(state)
+
+      {:error, :invalid_password} ->
+        request
+        |> Response.for_invalid_request("Invalid password")
+        |> into_push(state)
+    end
+  end
+
+  def handle_request(%{action: :rejoin_room} = request, state) do
+    room_address = Gensou.Room.address(request.data.id)
+
+    case Gensou.Room.rejoin(room_address, state.player_id, request.data.last_event_index) do
+      {:ok, {room, players, events}} ->
+        state = %{
+          state
+          | room_id: room.id,
+            room_address: room_address
+        }
+
+        :ok = Gensou.Room.subscribe(room.id)
+        rejoin_details = %Model.Response.RejoinDetails{room: room, players: players, events: events}
+        response = {:binary, Response.for_request(request, rejoin_details)}
+        {:push, response, state}
+
+      {:error, :not_found} ->
+        request
+        |> Response.for_invalid_request("Room not found")
+        |> into_push(state)
+
+      {:error, :player_not_found} ->
+        request
+        |> Response.for_invalid_request("Player is not in this room")
         |> into_push(state)
     end
   end
@@ -262,6 +308,15 @@ defmodule GensouWeb.GameSocket do
   def handle_info({:global, msg}, state) do
     Logger.debug("Pushing #{inspect(msg)}")
     {:push, {:binary, CBOR.encode(msg)}, state}
+  end
+
+  def handle_info({:reconnect_available, room_id}, state) do
+    Logger.info("[#{__MODULE__}] Reconnect available for #{state.player_id} to #{room_id}")
+    data = Model.Response.NewRoom.new!(%{id: room_id})
+
+    %Broadcast{channel: :reconnect_available, data: data}
+    |> into_push(state)
+    |> maybe_encode_result()
   end
 
   def handle_info({:lobby_changed, lobby}, state) do

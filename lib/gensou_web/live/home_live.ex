@@ -25,10 +25,6 @@ defmodule GensouWeb.HomeLive do
     {:noreply, socket}
   end
 
-  defp game_socket_uri() do
-    String.replace_leading(url(~p"/game_socket"), "http", "ws")
-  end
-
   @impl true
   def render(assigns) do
     ~H"""
@@ -53,5 +49,9 @@ defmodule GensouWeb.HomeLive do
       </.table>
     </article>
     """
+  end
+
+  defp game_socket_uri() do
+    String.replace_leading(url(~p"/game_socket"), "http", "ws")
   end
 end

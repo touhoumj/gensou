@@ -59,6 +59,16 @@ defmodule Gensou.Room do
     {:reply, {:ok, state.players}, state}
   end
 
+  def handle_call({:get_player, player_id}, _from, state) do
+    player = Enum.find(state.players, &(&1.id == player_id))
+
+    if player do
+      {:reply, {:ok, player}, state}
+    else
+      {:reply, {:error, :not_found}, state}
+    end
+  end
+
   def handle_call({:join, player, password}, _from, state) do
     # TODO prevent duplicate joins
     cond do
@@ -75,6 +85,35 @@ defmodule Gensou.Room do
         Gensou.Lobby.update_room(state.room)
         broadcast(state.room.id, {:player_joined, player})
         {:reply, {:ok, {state.room, state.players}}, state}
+    end
+  end
+
+  def handle_call({:rejoin, player_id, last_event_index}, _from, state) do
+    player_index = Enum.find_index(state.players, fn player -> player.id == player_id end)
+
+    case player_index do
+      nil ->
+        {:reply, :error, :player_not_found}
+
+      player_index ->
+        players =
+          List.update_at(
+            state.players,
+            player_index,
+            &Map.replace(&1, :disconnected, false)
+          )
+
+        player = Enum.at(state.players, player_index)
+        state = %{state | players: players}
+
+        events =
+          state.events
+          # TODO confirm that this really should be inclusive
+          |> Enum.filter(&(&1.index >= last_event_index))
+          |> Enum.sort_by(& &1.index)
+
+        broadcast(state.room.id, {:player_changed, :reconnected, player.id})
+        {:reply, {:ok, {state.room, state.players, events}}, state}
     end
   end
 
@@ -268,7 +307,7 @@ defmodule Gensou.Room do
   end
 
   def address(room_id) do
-    {:via, Registry, {Gensou.RoomRegistry, room_id}}
+    {:via, Registry, {Gensou.RoomRegistry, :room, room_id}}
   end
 
   def topic(room_id), do: "room:#{room_id}"
@@ -306,6 +345,10 @@ defmodule Gensou.Room do
   def get_info(pid), do: call(pid, :get_info)
   def get_players(pid), do: call(pid, :get_players)
   def join(pid, player, password), do: call(pid, {:join, player, password})
+
+  def rejoin(pid, player_id, last_event_index),
+    do: call(pid, {:rejoin, player_id, last_event_index})
+
   def leave(pid, player_id), do: call(pid, {:leave, player_id})
 
   def update_readiness(pid, player_id, state),
@@ -317,6 +360,19 @@ defmodule Gensou.Room do
   def add_cpu(pid, player), do: call(pid, {:add_cpu, player})
   def add_game_event(pid, game_event), do: call(pid, {:add_game_event, game_event})
   def finish_game(pid, player_id), do: call(pid, {:finish_game, player_id})
+  def get_player(pid, player_id), do: call(pid, {:get_player, player_id})
+
+  def find_player_in_all_games(player_id) do
+    # FIXME not particularly efficient
+    Registry.match(Gensou.RoomRegistry, :room, :_)
+    |> Enum.map(fn {pid, room_id} ->
+      case get_player(pid, player_id) do
+        {:ok, player} -> {room_id, player}
+        _ -> nil
+      end
+    end)
+    |> Enum.reject(&is_nil/1)
+  end
 
   defp call(pid, msg) do
     case GenServer.whereis(pid) do

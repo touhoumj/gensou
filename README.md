@@ -55,6 +55,7 @@ To build such binaries, these additional dependencies are required:
 Then it can be built like so:
 
 ```sh
+MIX_ENV=prod mix assets.deploy
 MIX_ENV=prod mix release gensou_wrapped
 ```
 

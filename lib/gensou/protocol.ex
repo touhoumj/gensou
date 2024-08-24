@@ -20,9 +20,10 @@ defmodule Gensou.Protocol do
       Gensou.Model.Player,
       Gensou.Model.Player.Stats,
       Gensou.Model.GameEvent,
-      Gensou.Model.Response.CreatedRoom,
+      Gensou.Model.Response.NewRoom,
       Gensou.Model.Response.PlayerChange,
-      Gensou.Model.Response.PlayerList
+      Gensou.Model.Response.PlayerList,
+      Gensou.Model.Response.RejoinDetails
     ] do
     def encode_into(%schema{} = event, acc) do
       event

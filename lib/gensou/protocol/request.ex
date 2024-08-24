@@ -15,6 +15,7 @@ defmodule Gensou.Protocol.Request do
           Model.Request.Auth.t()
           | Model.Request.CreateRoom.t()
           | Model.Request.JoinRoom.t()
+          | Model.Request.RejoinRoom.t()
           | Model.Request.UpdateReadiness.t()
           | Model.Request.UpdateLoadingState.t()
           | Model.Player.t()
@@ -100,6 +101,7 @@ defmodule Gensou.Protocol.Request do
       :leave_lobby -> {:ok, nil}
       :create_room -> {:ok, Model.Request.CreateRoom}
       :join_room -> {:ok, Model.Request.JoinRoom}
+      :rejoin_room -> {:ok, Model.Request.RejoinRoom}
       :quick_join -> {:ok, nil}
       :leave_room -> {:ok, nil}
       :update_readiness -> {:ok, Model.Request.UpdateReadiness}
